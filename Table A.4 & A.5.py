@@ -12,7 +12,7 @@ import warnings
 warnings.filterwarnings("ignore", category = RuntimeWarning)
 
 # Parameters
-k = 2.0      # Mean reversion rate
+k = 3.0      # Mean reversion rate
 sigma = 1.0  # Volatility
 X0 = 0.0     # Initial value for X_t
 W0 = 1.0     # Initial value for W_t
@@ -93,8 +93,7 @@ def generate_random_alpha_func():
         
         # Modify the expression to include W linearly
         base_expression = f"W + ({expression_with_X})"
-                        
-        
+                                
         try:
             # Safely evaluate the expression
             result = eval(base_expression, {"np": np, "W": W, "X": X, "tau": tau, "k": k, "gamma": gamma, "sigma": sigma})
@@ -111,7 +110,6 @@ def generate_random_alpha_func():
 def simulate_W_t(alpha_func):
     W_nostar = np.zeros((N + 1, M))
     W_nostar[0, :] = W0
-
 
     # Simulate W_t with given alpha_func
     for i in range(N):
@@ -132,7 +130,6 @@ for i in range(100):
     W_T_avg_list.append(W_T_avg_nostar)  
     print(f"Average of W_T for function {i + 1}: {W_T_avg_nostar}")
 
-
 # Plotting all sample paths for X_t
 plt.figure(figsize=(10, 6))
 for i in range(M):  
@@ -141,7 +138,6 @@ plt.xlabel('Time')
 plt.ylabel('$X_t$')
 plt.title('Sample Paths of the Ornstein-Uhlenbeck Process')
 plt.show()
-
 
 # Plotting a sample path for X_t and alpha^*_t
 plt.figure(figsize=(10, 6))
@@ -162,13 +158,13 @@ plt.title('Sample Path of $W_t$')
 plt.legend()
 plt.show()
 
-# Plot the averages of non-optimal W_T vs optimal W_T
+# Plotting the averages of non-optimal W_T vs optimal W_T
 plt.figure(figsize=(10, 6))
-plt.plot(range(1, 101), W_T_avg_list, marker='o', label='Non-optimal wealth $W_T$')
+plt.bar(range(1, 101), W_T_avg_list, color='blue', label='Non-optimal wealth $W_T$', width=0.8)
 plt.axhline(y=W_T_avg, color='red', linestyle='--', label='Optimal wealth $W_T^*$')
 plt.xlabel('Functional Form Index')
 plt.ylabel('Averages of terminal wealth $W_T$')
 plt.title('Averages of $W_T$ for 100 Random Functional Forms of $\\alpha_t$')
 plt.xlim(0, 101)
-plt.legend()
+plt.legend(loc='upper right', bbox_to_anchor=(1, 0.95), borderpad=0.5)
 plt.show()
