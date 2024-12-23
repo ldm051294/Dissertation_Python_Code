@@ -76,32 +76,36 @@ print(f"Average of alpha_star_T: {alpha_star_T_avg}")
 # Function to generate a random functional form for alpha_t
 def generate_random_alpha_func():
     operations = ['+', '-', '*', '/']
-    
+
     def alpha_func(W, X, tau, k, gamma, sigma):
-        # Ensure that each expression involves all the parameters except W and X, which will be handled separately
         terms = ['tau', 'k', 'gamma', 'sigma']
         random.shuffle(terms)  # Shuffle to get diverse combinations
-        
+
         # Start with the first term and combine all others using random operations
         expression = terms[0]
         for i in range(1, len(terms)):
             operation = random.choice(operations)
-            expression = f"({expression}) {operation} ({terms[i]})"
-        
+            # Avoid divisions by variables to prevent instability
+            if operation == '/':
+                expression = f"({expression}) {operation} ({terms[i]} + 1e-6)"  # Add small constant to prevent division by zero
+            else:
+                expression = f"({expression}) {operation} ({terms[i]})"
+
         # Include X linearly in the expression
         expression_with_X = f"{expression} + X"
-        
+
         # Modify the expression to include W linearly
         base_expression = f"W + ({expression_with_X})"
-                                
+
         try:
             # Safely evaluate the expression
             result = eval(base_expression, {"np": np, "W": W, "X": X, "tau": tau, "k": k, "gamma": gamma, "sigma": sigma})
-            if np.isnan(result).any() or np.isinf(result).any():
+            if np.isnan(result).any() or np.isinf(result).any() or np.min(result) < 0:
+                # Replace invalid or negative results with zeros
                 return np.zeros_like(W)
             return result
         except:
-            return np.zeros_like(W)  
+            return np.zeros_like(W)
 
     return alpha_func
 
